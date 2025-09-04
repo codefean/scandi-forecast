@@ -1,0 +1,15 @@
+/* loc.css */
+.loc-readout {
+  position: absolute;
+  padding: 8px 10px;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 14px !important;
+  line-height: 1.2;
+  pointer-events: none; /* don't block map interaction */
+  z-index: 2;
+  backdrop-filter: blur(2px);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

@@ -1,0 +1,42 @@
+/* glaciers.css
+   Styling for glacier popups, toggle button, and integration with GLOFmap styles.
+*/
+
+@import 'mapbox-gl/dist/mapbox-gl.css';
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+
+/* Remove the default popup container background */
+.glacier-popup.mapboxgl-popup {
+  background: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+/* Remove the inner popup content box */
+.glacier-popup .mapboxgl-popup-content {
+  background: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  backdrop-filter: none !important; /* <— THIS kills the blur */
+  -webkit-backdrop-filter: none !important; /* Safari-specific */
+}
+
+/* Remove the little arrow pointer under the popup */
+.glacier-popup .mapboxgl-popup-tip {
+  display: none !important;
+}
+
+/* Make the label look clean and text-only */
+.glacier-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgb(0, 32, 96); /* faint dark blue */
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+}
