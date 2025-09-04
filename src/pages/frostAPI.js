@@ -1,43 +1,33 @@
-// src/api/frostAPI.js
-
-const FROST_CLIENT_ID = "12f68031-8ce7-48c7-bc7a-38b843f53711";
-const FROST_CLIENT_SECRET = "08a75b8d-ca70-44a9-807d-d79421c082bf";
-
 /**
- * Fetch weather stations from Frost API
+ * Fetch weather stations from your backend
  */
 export const fetchStations = async () => {
   try {
-    const frostAuth = btoa(`${FROST_CLIENT_ID}:${FROST_CLIENT_SECRET}`);
-    console.log("🌍 Fetching stations from Frost API...");
+    console.log("🌍 Fetching stations from backend...");
 
+    // ✅ Use your deployed backend API instead of Frost directly
     const response = await fetch(
-      "/frost/sources/v0.jsonld?types=SensorSystem",
-      {
-        headers: {
-          Authorization: `Basic ${frostAuth}`,
-          Accept: "application/json",
-        },
-      }
+      "https://scandi-backend.onrender.com/api/stations"
     );
 
-    console.log("🔄 Response status:", response.status);
+    console.log("🔄 Backend response status:", response.status);
 
     if (!response.ok) {
-      throw new Error(`❌ Frost API error: ${response.status}`);
+      throw new Error(`❌ Backend API error: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log("📦 Frost API raw data:", data);
+    console.log("📦 Stations fetched:", data);
 
-    if (!data || !Array.isArray(data.data)) {
-      console.error("🚨 Invalid Frost API response format");
+    // ✅ Validate structure
+    if (!data || !Array.isArray(data)) {
+      console.error("🚨 Invalid backend response format");
       return [];
     }
 
-    return data.data || [];
+    return data;
   } catch (error) {
-    console.error("🚨 Error fetching Frost data:", error);
+    console.error("🚨 Error fetching stations:", error);
     return [];
   }
 };
