@@ -1,6 +1,7 @@
 // src/App.js
 import React from "react";
 import WeatherMap from "./pages/weatherMap";
+import "./App.css";
 
 const App = () => {
   return (
