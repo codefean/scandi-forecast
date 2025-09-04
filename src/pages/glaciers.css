@@ -31,9 +31,9 @@
 
 /* Make the label look clean and text-only */
 .glacier-label {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
-  color: rgb(0, 32, 96); /* faint dark blue */
+  color: rgb(0, 35, 53); /* faint dark blue */
   font-family: 'Helvetica Neue', Arial, sans-serif;
   background: none !important;
   box-shadow: none !important;

@@ -1,0 +1,29 @@
+/* loc.css */
+.citation-readout {
+  position: absolute;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.292);
+  color: #ffffff78;
+  border-radius: 8px;
+  font-size: 10px !important;
+  line-height: 1.2;
+  z-index: 2;
+  backdrop-filter: blur(2px);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.citation-readout:hover {
+  position: absolute;
+  padding: 8px 10px;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 10px !important;
+  line-height: 1.2;
+  z-index: 2;
+  backdrop-filter: blur(2px);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+

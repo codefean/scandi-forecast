@@ -6,6 +6,7 @@ import { fetchStations } from "./frostAPI";
 import { frostToGeoJSON } from "./geojsonUtils";
 import { useGlacierLayer } from "./glaciers";
 import Loc from "./loc";
+import Citation from "./citation";
 
 // cd /Users/seanfagan/Desktop/scandi-forecast
 
@@ -191,6 +192,7 @@ mapRef.current.on("mouseleave", "stations-layer", () => {
 />
 
 <Loc cursorInfo={cursorInfo} className="loc-readout" />
+<Citation className="citation-readout" stylePos={{ position: 'absolute', right: 12, bottom: 25, zIndex: 2 }} />
 
   </div>
   );
