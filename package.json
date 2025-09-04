@@ -1,23 +1,40 @@
 {
-  "name": "climate-globe",
+  "name": "scandi-forecast",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://codefean.github.io/scandi-forecast",
   "dependencies": {
-    "@testing-library/dom": "^10.4.1",
-    "@testing-library/jest-dom": "^6.8.0",
-    "@testing-library/react": "^16.3.0",
+    "@emailjs/browser": "^4.4.1",
+    "@google-analytics/data": "^5.1.0",
+    "@google/model-viewer": "^4.1.0",
     "@testing-library/user-event": "^13.5.0",
-    "http-proxy-middleware": "^3.0.5",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "react-scripts": "5.0.1",
+    "counterapi": "^1.146.0",
+    "file-saver": "^2.0.5",
+    "mapbox-gl": "^3.8.0",
+    "nodemailer": "^7.0.5",
+    "papaparse": "^5.5.3",
+    "proj4": "^2.19.10",
+    "react": "^18.3.1",
+    "react-before-after-slider-component": "^1.1.8",
+    "react-compare-image": "^3.5.0",
+    "react-dom": "^18.3.1",
+    "react-icons": "^5.5.0",
+    "react-responsive-carousel": "^3.2.23",
+    "react-router-dom": "^7.1.1",
+    "react-scripts": "^5.0.1",
+    "react-slick": "^0.30.3",
+    "recharts": "^2.15.1",
+    "slick-carousel": "^1.8.1",
+    "three": "^0.179.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -38,6 +55,9 @@
     ]
   },
   "devDependencies": {
-    "geojsonhint": "^2.0.0"
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "gh-pages": "^6.3.0",
+    "jest": "^27.5.1"
   }
 }
