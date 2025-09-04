@@ -6,7 +6,6 @@
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
     "@google-analytics/data": "^5.1.0",
-    "@google/model-viewer": "^4.1.0",
     "@testing-library/user-event": "^13.5.0",
     "counterapi": "^1.146.0",
     "file-saver": "^2.0.5",
@@ -25,7 +24,6 @@
     "react-slick": "^0.30.3",
     "recharts": "^2.15.1",
     "slick-carousel": "^1.8.1",
-    "three": "^0.179.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
