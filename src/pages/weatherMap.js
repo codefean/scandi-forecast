@@ -7,7 +7,7 @@ import { frostToGeoJSON } from "./geojsonUtils";
 import { useGlacierLayer } from "./glaciers";
 import Loc from "./loc";
 
-// cd /Users/seanfagan/Desktop/weather-map
+// cd /Users/seanfagan/Desktop/scandi-forecast
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWFwZmVhbiIsImEiOiJjbTNuOGVvN3cxMGxsMmpzNThzc2s3cTJzIn0.1uhX17BCYd65SeQsW1yibA";
@@ -190,9 +190,9 @@ mapRef.current.on("mouseleave", "stations-layer", () => {
   style={{ width: "100%", height: "100vh", borderRadius: "10px" }}
 />
 
-      {/* Cursor readout */}
-      <Loc cursorInfo={cursorInfo} />
-    </div>
+<Loc cursorInfo={cursorInfo} className="loc-readout" />
+
+  </div>
   );
 };
 

@@ -9,7 +9,7 @@ const Loc = ({ cursorInfo }) => {
       style={{
         position: "absolute",
         left: 12,
-        bottom: 12,
+        bottom: 35,
         padding: "8px 10px",
         background: "rgba(0,0,0,0.55)",
         color: "#fff",
