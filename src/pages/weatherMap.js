@@ -1,14 +1,14 @@
-
 import React, { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { fetchStations } from "./frostAPI";
 import { frostToGeoJSON } from "./geojsonUtils";
 import { useGlacierLayer } from "./glaciers";
+import { filterFrostStations } from "./filterFrost";
 import Loc from "./loc";
 import Citation from "./citation";
+import "./weatherMap.css";
 
-// cd /Users/seanfagan/Desktop/scandi-forecast
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWFwZmVhbiIsImEiOiJjbTNuOGVvN3cxMGxsMmpzNThzc2s3cTJzIn0.1uhX17BCYd65SeQsW1yibA";
@@ -23,78 +23,83 @@ const WeatherStationsMap = () => {
     elevM: null,
   });
 
+  const [loading, setLoading] = useState(true);
+  const [logMessages, setLogMessages] = useState([]);
+  const [progress, setProgress] = useState(0);
+
+  // Utility: log messages + update progress bar
+  const updateProgress = (msg, step, totalSteps) => {
+    console.log(msg);
+    setLogMessages((prev) => [...prev, msg]);
+    setProgress(Math.round((step / totalSteps) * 100));
+  };
+
   useEffect(() => {
     const initMap = async () => {
       if (mapRef.current) return;
 
-      console.log("🗺️ Initializing Mapbox map...");
+      const totalSteps = 7;
+      let step = 1;
 
-      // Initialize the map
+      updateProgress("🗺️ Initializing Mapbox map...", step++, totalSteps);
+
       mapRef.current = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/satellite-streets-v12',
-        center: [10.75, 59.91], // Oslo-ish
-        zoom: 3.8,
+        style: "mapbox://styles/mapbox/satellite-streets-v12",
+        center: [10.75, 67.91],
+        zoom: 3.7,
       });
 
-      // Wait for map to fully load
       await new Promise((resolve) => mapRef.current.on("load", resolve));
-      console.log("🛰️ Mapbox map fully loaded");
+      updateProgress("🛰️ Mapbox map fully loaded", step++, totalSteps);
 
-          // ✅ Add DEM source for terrain-based elevation
-    if (!mapRef.current.getSource("mapbox-dem")) {
-      mapRef.current.addSource("mapbox-dem", {
-        type: "raster-dem",
-        url: "mapbox://mapbox.mapbox-terrain-dem-v1",
-        tileSize: 512,
-        maxzoom: 14,
-      });
+      if (!mapRef.current.getSource("mapbox-dem")) {
+        mapRef.current.addSource("mapbox-dem", {
+          type: "raster-dem",
+          url: "mapbox://mapbox.mapbox-terrain-dem-v1",
+          tileSize: 512,
+          maxzoom: 14,
+        });
+        mapRef.current.setTerrain({ source: "mapbox-dem", exaggeration: 1.0 });
+      }
 
-      mapRef.current.setTerrain({ source: "mapbox-dem", exaggeration: 1.0 });
-    }
-
-      // Fetch Frost API station data
+      updateProgress("🔄 Fetching Frost stations...", step, totalSteps);
       const stations = await fetchStations();
-      console.log(`📊 Total stations fetched: ${stations.length}`);
+      updateProgress(`📦 Stations fetched: ${stations.length}`, step++, totalSteps);
 
       if (stations.length === 0) {
-        console.warn("⚠️ No stations returned from Frost API");
+        updateProgress("⚠️ No stations returned from Frost API", totalSteps, totalSteps);
+        setLoading(false);
         return;
       }
 
-      // ✅ Filter by country
-      const allowedCountries = [
-        "Sverige",               // Sweden
-        "Norge",                 // Norway
-        "Svalbard og Jan Mayen", // Svalbard
-      ];
+      const allowedCountries = ["Sverige", "Norge", "Svalbard og Jan Mayen"];
+      const filteredStations = stations.filter((station) =>
+        allowedCountries.includes(station.country?.trim())
+      );
+      updateProgress(`📌 Showing ${filteredStations.length} stations after filtering by country`, step++, totalSteps);
 
-      const filteredStations = stations.filter((station) => {
-        const country = station.country?.trim();
-        return allowedCountries.includes(country);
-      });
+      const stationPoints = frostToGeoJSON(filteredStations);
+      updateProgress(`✅ Converted ${stationPoints.features.length} valid stations into GeoJSON.`, step++, totalSteps);
 
-      console.log(`📌 Showing ${filteredStations.length} stations after filtering`);
+      updateProgress("🧊 Filtering stations near glaciers...", step, totalSteps);
+      const stationsOnGlaciers = await filterFrostStations(stationPoints, 10);
+      updateProgress(
+        `🧊 Filtered ${stationsOnGlaciers.features.length} stations within 10 km of glaciers out of ${stationPoints.features.length}`,
+        step++,
+        totalSteps
+      );
 
-      // Convert Frost stations to GeoJSON
-      const geojson = frostToGeoJSON(filteredStations);
-
-      // ✅ Use Blob URL to avoid Mapbox rejecting large inline GeoJSON
-      const blob = new Blob([JSON.stringify(geojson)], {
+      const blob = new Blob([JSON.stringify(stationsOnGlaciers)], {
         type: "application/json",
       });
       const url = URL.createObjectURL(blob);
 
-      // Add GeoJSON source if not present
       if (!mapRef.current.getSource("stations")) {
-        mapRef.current.addSource("stations", {
-          type: "geojson",
-          data: url,
-        });
-        console.log("📡 GeoJSON source added successfully");
+        mapRef.current.addSource("stations", { type: "geojson", data: url });
+        updateProgress("📡 Glacier-filtered GeoJSON source added successfully", step, totalSteps);
       }
 
-      // Add stations layer if not present
       if (!mapRef.current.getLayer("stations-layer")) {
         mapRef.current.addLayer({
           id: "stations-layer",
@@ -116,31 +121,25 @@ const WeatherStationsMap = () => {
             "circle-opacity": 0.9,
           },
         });
-        console.log("✅ Station layer added successfully");
+        updateProgress("✅ Station layer added successfully", totalSteps, totalSteps);
       }
 
-
-
-        mapRef.current.on("mousemove", (e) => {
-          const { lng, lat } = e.lngLat;
-
-          // Query terrain elevation if available
-          const elevation = mapRef.current.queryTerrainElevation(e.lngLat, {
-            exaggerated: false, // Set to true if you want elevation with exaggeration applied
-          });
-
-          setCursorInfo({
-            lat,
-            lng,
-            elevM: elevation !== null ? elevation.toFixed(1) : "N/A",
-          });
+      mapRef.current.on("mousemove", (e) => {
+        const { lng, lat } = e.lngLat;
+        const elevation = mapRef.current.queryTerrainElevation(e.lngLat, {
+          exaggerated: false,
         });
-      // Reset cursor info on mouse leave
+        setCursorInfo({
+          lat,
+          lng,
+          elevM: elevation !== null ? elevation.toFixed(1) : "N/A",
+        });
+      });
+
       mapRef.current.on("mouseleave", () => {
         setCursorInfo({ lat: null, lng: null, elevM: null });
       });
 
-      // Popup on station click
       mapRef.current.on("click", "stations-layer", (e) => {
         const props = e.features[0].properties;
         const coords = e.features[0].geometry.coordinates;
@@ -155,23 +154,11 @@ const WeatherStationsMap = () => {
           .addTo(mapRef.current);
       });
 
-mapRef.current.on("mouseenter", "stations-layer", () => {
-  mapRef.current.getCanvas().style.cursor = "crosshair";
-});
-mapRef.current.on("mouseleave", "stations-layer", () => {
-  mapRef.current.getCanvas().style.cursor = "crosshair";
-});
-
-
-      // Handle Mapbox rendering errors
-      mapRef.current.on("error", (e) => {
-        console.error("🛑 Mapbox rendering error:", e.error);
-      });
+      setLoading(false);
     };
 
     initMap();
 
-    // ✅ Cleanup on component unmount
     return () => {
       if (mapRef.current) {
         mapRef.current.remove();
@@ -180,21 +167,39 @@ mapRef.current.on("mouseleave", "stations-layer", () => {
     };
   }, []);
 
-  // Add glacier layer hook
   useGlacierLayer({ mapRef });
 
   return (
     <div style={{ position: "relative" }}>
-<div
-  ref={mapContainer}
-  className="map-container"
-  style={{ width: "100%", height: "100vh", borderRadius: "10px" }}
-/>
+      <div
+        ref={mapContainer}
+        className="map-container"
+        style={{ width: "100%", height: "100vh"}}
+      />
 
-<Loc cursorInfo={cursorInfo} className="loc-readout" />
-<Citation className="citation-readout" stylePos={{ position: 'absolute', right: 12, bottom: 25, zIndex: 2 }} />
+      {loading && (
+        <div className="loading-overlay">
+          <h2 className="loading-title">🔄 Loading Glacier Data...</h2>
+          <div className="progress-container">
+            <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+          </div>
+          <p className="progress-percent">{progress}% Complete</p>
+          <div className="log-messages">
+            {logMessages.map((msg, idx) => (
+              <div key={idx} className="log-message">
+                {msg}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-  </div>
+      <Loc cursorInfo={cursorInfo} className="loc-readout" />
+      <Citation
+        className="citation-readout"
+        stylePos={{ position: "absolute", right: 12, bottom: 25, zIndex: 2 }}
+      />
+    </div>
   );
 };
 
