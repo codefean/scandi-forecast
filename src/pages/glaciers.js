@@ -35,19 +35,21 @@ export function useGlacierLayer({ mapRef }) {
           "source-layer": sourceLayer,
           paint: {
             "fill-color": "#2ba0ff",
-            "fill-opacity": .4, // slightly more visible, optional
+            "fill-opacity": 0.4,
           },
         });
       }
     };
 
     const onLoad = () => {
+      // Add both glacier tilesets
       addTileset({ ...glacierTileset, fillId: FILL_LAYER_ID_1 });
       addTileset({ ...glacierTileset2, fillId: FILL_LAYER_ID_2 });
 
       map.setLayoutProperty(FILL_LAYER_ID_1, "visibility", "visible");
       map.setLayoutProperty(FILL_LAYER_ID_2, "visibility", "visible");
 
+      // Create styled popup
       const popup = new mapboxgl.Popup({
         closeButton: false,
         closeOnClick: false,
@@ -65,17 +67,48 @@ export function useGlacierLayer({ mapRef }) {
           return;
         }
 
-        const glacName = features[0].properties?.glac_name;
-        if (glacName && glacName.trim() !== "") {
-          popup
-            .setLngLat(e.lngLat)
-            .setHTML(`<div class="glacier-label">${glacName}</div>`)
-            .addTo(map);
-        } else {
-          popup.remove();
-        }
+        const props = features[0].properties;
+
+        // Glacier name (blank if missing)
+        const glacName =
+          props?.glac_name && props.glac_name.trim() !== ""
+            ? props.glac_name
+            : "";
+
+        // Glacier size (km²)
+        const area =
+          props?.area_km2 && !isNaN(props.area_km2)
+            ? parseFloat(props.area_km2).toFixed(2)
+            : "N/A";
+
+        // Slope (degrees)
+        const slope =
+          props?.slope_deg && !isNaN(props.slope_deg)
+            ? parseFloat(props.slope_deg).toFixed(1)
+            : "N/A";
+
+        // Max elevation (meters)
+        const zmax =
+          props?.zmax_m && !isNaN(props.zmax_m)
+            ? `${parseInt(props.zmax_m, 10)} m`
+            : "N/A";
+
+        // Build styled popup HTML
+        const popupHTML = `
+          <div class="glacier-label">
+            ${glacName ? `<h4>${glacName}</h4>` : ""}
+            <div class="stats">
+              <div><strong>${area}</strong> km²</div>
+              <div><strong>${slope}°</strong> slope</div>
+              <div><strong>${zmax}</strong> max elev</div>
+            </div>
+          </div>
+        `;
+
+        popup.setLngLat(e.lngLat).setHTML(popupHTML).addTo(map);
       });
 
+      // Remove popup on mouse leave
       map.on("mouseleave", FILL_LAYER_ID_1, () => popup.remove());
       map.on("mouseleave", FILL_LAYER_ID_2, () => popup.remove());
     };

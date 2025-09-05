@@ -5,38 +5,45 @@
 @import 'mapbox-gl/dist/mapbox-gl.css';
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
 
-/* Remove the default popup container background */
-.glacier-popup.mapboxgl-popup {
-  background: none !important;
-  box-shadow: none !important;
-  border: none !important;
-  padding: 0 !important;
-}
-
-/* Remove the inner popup content box */
 .glacier-popup .mapboxgl-popup-content {
-  background: none !important;
-  box-shadow: none !important;
-  border: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  backdrop-filter: none !important; /* <— THIS kills the blur */
-  -webkit-backdrop-filter: none !important; /* Safari-specific */
+  overflow: hidden;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: white;
+  padding: 12px;
+  font-family: "Inter", sans-serif;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
-/* Remove the little arrow pointer under the popup */
+.glacier-popup .mapboxgl-popup-content h4 {
+  margin: 0 0 6px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.glacier-popup .stats {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.glacier-popup .stats div {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.glacier-popup .stats div strong {
+  display: block;
+  font-size: 0.95rem;
+  color: #fff;
+}
+
 .glacier-popup .mapboxgl-popup-tip {
-  display: none !important;
-}
-
-/* Make the label look clean and text-only */
-.glacier-label {
-  font-size: 14px;
-  font-weight: 700;
-  color: rgb(0, 35, 53); /* faint dark blue */
-  font-family: 'Helvetica Neue', Arial, sans-serif;
-  background: none !important;
-  box-shadow: none !important;
-  border: none !important;
-  padding: 0 !important;
+  border-top-color: rgba(0, 0, 0, 0.6) !important;
 }
